@@ -1,0 +1,38 @@
+name: Laravel CI
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  laravel-tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.1
+        extensions: mbstring, dom, fileinfo, mysql, curl
+        coverage: none
+
+    - name: Copy .env
+      run: cp .env.example .env
+
+    - name: Install Composer Dependencies
+      run: composer install --no-interaction --prefer-dist
+
+    - name: Generate App Key
+      run: php artisan key:generate
+
+    - name: Run Migrations
+      run: php artisan migrate --force
+
+    - name: Run Tests
+      run: php artisan test
